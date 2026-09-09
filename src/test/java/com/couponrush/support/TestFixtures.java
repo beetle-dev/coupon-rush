@@ -11,7 +11,7 @@ import java.util.UUID;
 public final class TestFixtures {
 
     private static final String EVENT_NAME = "이벤트명";
-    private static final int TOTAL_QUANTITY = 100;
+    private static final int TOTAL_QUANTITY = 50;
     private static final int REMAINING_QUANTITY = 50;
 
     public static EventCreateRequest createEventCreateRequest() {
