@@ -33,10 +33,10 @@ public class CouponConcurrencyIssueTest extends TestContainer {
     @Test
     void 쿠폰_발급_동시성_테스트() throws InterruptedException {
         
-        int threadCount = 100;
+        int threadCount = 10000;
 
         ExecutorService executorService = Executors.newFixedThreadPool(32);
-        CountDownLatch count = new CountDownLatch(100);
+        CountDownLatch count = new CountDownLatch(threadCount);
 
         Event event = eventRepository.save(TestFixtures.createNoIDEvent());
         Long eventId = event.getId();

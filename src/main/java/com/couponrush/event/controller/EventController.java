@@ -25,7 +25,7 @@ public class EventController {
 
         return ResponseEntity
                 .created(URI.create("/events/" + result.id()))
-                .body(eventService.createEvent(request));
+                .body(result);
     }
 
     @GetMapping("/{id}")
