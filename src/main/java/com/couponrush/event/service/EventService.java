@@ -46,9 +46,16 @@ public class EventService {
     }
 
     @Transactional
+    public Event findByIdForUpdate(Long id) {
+
+        return eventRepository.selectForUpdate(id)
+                .orElseThrow(() -> new CustomRuntimeException(ErrorCode.EVENT_NOT_FOUND));
+    }
+
+    @Transactional
     public void decreaseRemainingQty(Long eventId) {
 
-        Event event = getEventEntity(eventId);
+        Event event = findByIdForUpdate(eventId);   // 비관적락 적용
 
         LocalDateTime now = LocalDateTime.now();
         if (event.getIssueStartAt().isAfter(now) || event.getIssueEndAt().isBefore(now)) {

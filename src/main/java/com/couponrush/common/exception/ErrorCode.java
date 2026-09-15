@@ -14,7 +14,9 @@ public enum ErrorCode {
     COUPON_OUT_OF_STOCK(HttpStatus.CONFLICT, "COUPON_409_01", "쿠폰 재고가 없습니다."),
     COUPON_DUPLICATE(HttpStatus.CONFLICT, "COUPON_409_02", "이미 발급받은 쿠폰입니다"),
     COUPON_INVALID_ISSUE_PERIOD(HttpStatus.BAD_REQUEST, "COUPON_400_01", "현재 쿠폰 발급이 가능한 이벤트가 아닙니다."),
-    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "COUPON_404_01", "존재하지 않는 쿠폰입니다.");
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "COUPON_404_01", "존재하지 않는 쿠폰입니다."),
+
+    COMMON_INVALID_INPUT(HttpStatus.BAD_REQUEST, "COMMON_400_01", "잘못된 요청입니다.");
 
     private final HttpStatus status;
     private final String code;
