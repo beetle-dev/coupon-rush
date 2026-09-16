@@ -31,6 +31,9 @@ public class Event {
     @Column(nullable = false)
     private LocalDateTime issueEndAt;
 
+    @Version        // 낙관적 락 적용
+    private Long version;
+
     public EventResponse toEventResponse() {
 
         return new EventResponse(

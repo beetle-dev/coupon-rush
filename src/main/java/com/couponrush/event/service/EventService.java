@@ -55,7 +55,7 @@ public class EventService {
     @Transactional
     public void decreaseRemainingQty(Long eventId) {
 
-        Event event = findByIdForUpdate(eventId);   // 비관적락 적용
+        Event event = getEventEntity(eventId);
 
         LocalDateTime now = LocalDateTime.now();
         if (event.getIssueStartAt().isAfter(now) || event.getIssueEndAt().isBefore(now)) {
