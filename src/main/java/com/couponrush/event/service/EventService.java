@@ -2,6 +2,7 @@ package com.couponrush.event.service;
 
 import com.couponrush.common.exception.CustomRuntimeException;
 import com.couponrush.common.exception.ErrorCode;
+import com.couponrush.coupon.repository.CouponStockRedisRepository;
 import com.couponrush.event.domain.Event;
 import com.couponrush.event.dto.EventCreateRequest;
 import com.couponrush.event.dto.EventResponse;
@@ -19,11 +20,16 @@ import java.time.LocalDateTime;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final CouponStockRedisRepository couponStockRedisRepository;
 
     @Transactional
     public EventResponse createEvent(EventCreateRequest request) {
 
         Event event = eventRepository.save(request.toEvent());
+
+        couponStockRedisRepository.initialize(
+                event.getId(), event.getRemainingQuantity(), event.getIssueStartAt(), event.getIssueEndAt());
+
         log.info("이벤트 생성 완료. eventId={}", event.getId());
 
         return event.toEventResponse();
