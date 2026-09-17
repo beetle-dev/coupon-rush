@@ -3,6 +3,7 @@ package com.couponrush.coupon.controller;
 import com.couponrush.common.exception.CustomRuntimeException;
 import com.couponrush.common.exception.ErrorCode;
 import com.couponrush.coupon.dto.CouponIssueResponse;
+import com.couponrush.coupon.service.CouponIssueLockService;
 import com.couponrush.coupon.service.CouponService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ class CouponControllerTest {
 
     @MockitoBean
     CouponService couponService;
+    @MockitoBean
+    CouponIssueLockService couponIssueLockService;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -32,7 +35,7 @@ class CouponControllerTest {
     @Test
     void 쿠폰_발급_성공시_201_쿠폰ID_반환() throws Exception {
 
-        given(couponService.issueCoupon(any(Long.class), any(Long.class)))
+        given(couponIssueLockService.issueCoupon(any(Long.class), any(Long.class)))
                 .willReturn(new CouponIssueResponse(1L));
 
         mockMvc.perform(post("/events/1/coupons")

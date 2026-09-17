@@ -54,7 +54,7 @@ class EventControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$").value("1"));
+                .andExpect(jsonPath("$.id").value("1"));
     }
 
     @Test

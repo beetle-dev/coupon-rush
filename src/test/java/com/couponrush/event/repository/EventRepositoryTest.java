@@ -18,7 +18,8 @@ class EventRepositoryTest extends TestContainer {
     @Test
     void Event를_생성하면_id가_자동으로_생성된다() {
 
-        Event event = TestFixtures.createEvent();
+        // id가 이미 박힌 픽스처를 저장하면 merge가 돼서 "자동 생성"을 검증하지 못한다.
+        Event event = TestFixtures.createNoIDEvent();
 
         Event saved = eventRepository.save(event);
 

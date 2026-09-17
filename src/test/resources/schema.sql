@@ -1,3 +1,10 @@
+-- docs/DDL.sql의 미러. 테이블 구조는 그쪽이 기준(source of truth)이다.
+-- 다른 점은 DROP TABLE IF EXISTS 뿐이다.
+-- MySQL 컨테이너를 JVM당 하나만 띄우므로(TestContainer) 스프링 컨텍스트가 새로 뜰 때마다
+-- 이 스크립트가 다시 실행된다. 멱등하지 않으면 "Table already exists"로 컨텍스트 로딩이 실패한다.
+
+DROP TABLE IF EXISTS coupon;
+
 CREATE TABLE coupon
 (
     id          BIGINT      NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -16,6 +23,8 @@ CREATE UNIQUE INDEX UQ_code
 
 CREATE UNIQUE INDEX UQ_event_id_user_id
     ON coupon (user_id, event_id);
+
+DROP TABLE IF EXISTS event;
 
 CREATE TABLE event
 (
