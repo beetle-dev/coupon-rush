@@ -2,7 +2,7 @@ package com.couponrush.coupon.controller;
 
 import com.couponrush.coupon.dto.CouponGetResponse;
 import com.couponrush.coupon.dto.CouponIssueResponse;
-import com.couponrush.coupon.service.CouponIssueRetryService;
+import com.couponrush.coupon.service.CouponIssueLockService;
 import com.couponrush.coupon.service.CouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +16,13 @@ import java.net.URI;
 public class CouponController {
 
     private final CouponService couponService;
-    private final CouponIssueRetryService couponIssueRetryService;
+    private final CouponIssueLockService couponIssueLockService;
 
     @PostMapping
     public ResponseEntity<CouponIssueResponse> issueCoupon(@PathVariable("eventId") Long eventId,
                                                            @RequestHeader("X-User-Id") Long userId) {
 
-        CouponIssueResponse result = couponIssueRetryService.issueCouponWithRetry(eventId, userId);
+        CouponIssueResponse result = couponIssueLockService.issueCoupon(eventId, userId);
 
         return ResponseEntity
                 .created(URI.create("/events/" + eventId + "/coupons/" + result.couponId()))
