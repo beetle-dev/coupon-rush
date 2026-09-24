@@ -2,7 +2,7 @@ package com.couponrush.coupon.service;
 
 import com.couponrush.common.exception.CustomRuntimeException;
 import com.couponrush.common.exception.ErrorCode;
-import com.couponrush.event.domain.Event;
+import com.couponrush.coupon.message.CouponIssueMessage;
 import com.couponrush.event.service.EventService;
 import com.couponrush.coupon.domain.Coupon;
 import com.couponrush.coupon.repository.CouponRepository;
@@ -10,11 +10,12 @@ import com.couponrush.event.repository.EventRepository;
 import com.couponrush.support.TestFixtures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -34,6 +35,9 @@ class CouponServiceTest {
 
     @Mock
     EventRepository eventRepository;
+
+    @Mock
+    CouponCodeGenerator couponCodeGenerator;
 
     @InjectMocks
     CouponService couponService;
@@ -84,6 +88,41 @@ class CouponServiceTest {
                 .willReturn(0);
 
         assertThatThrownBy(() -> couponService.issueCouponAtomic(1L, 2L))
+                .isInstanceOf(CustomRuntimeException.class)
+                .hasMessage(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
+    }
+
+    @Test
+    void 비동기_영속화는_메시지의_코드와_발급시각을_그대로_저장한다() {
+
+        Instant issuedAt = Instant.now();
+        CouponIssueMessage message = CouponIssueMessage.of(1L, 2L, "ABCDEF123456", issuedAt);
+
+        given(eventRepository.decreaseRemainingQuantity(1L))
+                .willReturn(1);
+
+        couponService.persistIssuedCoupon(message);
+
+        ArgumentCaptor<Coupon> captor = ArgumentCaptor.forClass(Coupon.class);
+        then(couponRepository).should().save(captor.capture());
+
+        Coupon saved = captor.getValue();
+        assertThat(saved.getCode()).isEqualTo("ABCDEF123456");
+        assertThat(saved.getUserId()).isEqualTo(2L);
+        assertThat(saved.getEventId()).isEqualTo(1L);
+        assertThat(saved.getIssuedAt()).isEqualTo(message.issuedAt());
+        then(couponCodeGenerator).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void 비동기_영속화에서_재고_차감이_0행이면_예외() {
+
+        CouponIssueMessage message = CouponIssueMessage.of(1L, 2L, "ABCDEF123456", Instant.now());
+
+        given(eventRepository.decreaseRemainingQuantity(1L))
+                .willReturn(0);
+
+        assertThatThrownBy(() -> couponService.persistIssuedCoupon(message))
                 .isInstanceOf(CustomRuntimeException.class)
                 .hasMessage(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
     }

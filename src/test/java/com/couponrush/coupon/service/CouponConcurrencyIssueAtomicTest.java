@@ -49,7 +49,8 @@ public class CouponConcurrencyIssueAtomicTest extends TestContainer {
     }
 
     @Test
-    void 쿠폰_발급_Redis_Lua_동시성_테스트() throws InterruptedException {
+    void 쿠폰_발급_Redis_Lua_동시성_테스트() throws InterruptedException
+    {
 
         int threadCount = 10000;
 

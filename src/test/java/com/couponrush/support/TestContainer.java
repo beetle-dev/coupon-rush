@@ -6,6 +6,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.kafka.KafkaContainer;
 
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -18,9 +19,12 @@ public class TestContainer {
     static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
             .withExposedPorts(REDIS_PORT);
 
+    static final KafkaContainer kafka = new KafkaContainer("apache/kafka:4.0.0");
+
     static {
         mysql.start();
         redis.start();
+        kafka.start();
     }
 
     @DynamicPropertySource
@@ -31,5 +35,7 @@ public class TestContainer {
 
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(REDIS_PORT));
+
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 }

@@ -1,0 +1,23 @@
+# 로컬 실행용 인프라. Redis/MySQL을 이미 띄워 쓰고 있다면 kafka 서비스만 올려도 된다.
+#   docker compose up -d kafka
+services:
+  kafka:
+    image: apache/kafka:4.0.0
+    container_name: coupon-rush-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # KRaft 단일 노드. 브로커와 컨트롤러를 한 프로세스가 겸한다(로컬 전용 구성).
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # 단일 노드라 복제본을 늘릴 수 없다. acks=all도 복제본 1개 기준으로 동작한다.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
