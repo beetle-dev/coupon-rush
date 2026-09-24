@@ -52,4 +52,3 @@ public class Event {
         this.remainingQuantity--;
     }
 }
-

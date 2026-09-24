@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
     Optional<Coupon> findByEventIdAndUserId(Long eventId, Long userId);
 
+    long countByEventId(Long eventId);
+
     @Query("SELECT c.userId FROM Coupon c WHERE c.eventId = :eventId")
     List<Long> findUserIdsByEventId(@Param("eventId") Long eventId);
 }
