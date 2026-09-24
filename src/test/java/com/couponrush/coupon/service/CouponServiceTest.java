@@ -6,6 +6,7 @@ import com.couponrush.event.domain.Event;
 import com.couponrush.event.service.EventService;
 import com.couponrush.coupon.domain.Coupon;
 import com.couponrush.coupon.repository.CouponRepository;
+import com.couponrush.event.repository.EventRepository;
 import com.couponrush.support.TestFixtures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,9 @@ class CouponServiceTest {
 
     @Mock
     CouponRepository couponRepository;
+
+    @Mock
+    EventRepository eventRepository;
 
     @InjectMocks
     CouponService couponService;
@@ -57,4 +61,30 @@ class CouponServiceTest {
                 .hasMessage(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
     }
 
+    @Test
+    void 원자_발급은_DB_조회_없이_재고를_차감한다() {
+
+        given(couponRepository.save(any(Coupon.class)))
+                .willReturn(TestFixtures.createCoupon(1L));
+        given(eventRepository.decreaseRemainingQuantity(1L))
+                .willReturn(1);
+
+        Long couponId = couponService.issueCouponAtomic(1L, 2L).couponId();
+
+        assertThat(couponId).isNotNull();
+        then(eventService).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void 원자_발급에서_재고_차감이_0행이면_예외() {
+
+        given(couponRepository.save(any(Coupon.class)))
+                .willReturn(TestFixtures.createCoupon(1L));
+        given(eventRepository.decreaseRemainingQuantity(1L))
+                .willReturn(0);
+
+        assertThatThrownBy(() -> couponService.issueCouponAtomic(1L, 2L))
+                .isInstanceOf(CustomRuntimeException.class)
+                .hasMessage(ErrorCode.COUPON_OUT_OF_STOCK.getMessage());
+    }
 }

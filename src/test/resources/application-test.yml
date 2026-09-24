@@ -3,7 +3,13 @@ spring:
     init:
       mode: always
       schema-locations: classpath:schema.sql
-      
+
   jpa:
     hibernate:
       ddl-auto: none
+
+  datasource:
+    hikari:
+      # 동시성 테스트가 32개 스레드로 같은 event 행을 잠근다. 기본값(10)이면 커넥션 대기로 타임아웃이 난다.
+      maximum-pool-size: 32
+      connection-timeout: 20000

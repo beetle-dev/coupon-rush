@@ -18,7 +18,7 @@ class EventRepositoryTest extends TestContainer {
     @Test
     void Event를_생성하면_id가_자동으로_생성된다() {
 
-        Event event = TestFixtures.createEvent();
+        Event event = TestFixtures.createNoIDEvent();
 
         Event saved = eventRepository.save(event);
 

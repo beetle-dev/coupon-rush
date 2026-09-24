@@ -2,6 +2,7 @@ package com.couponrush.event.service;
 
 import com.couponrush.common.exception.CustomRuntimeException;
 import com.couponrush.common.exception.ErrorCode;
+import com.couponrush.coupon.repository.CouponStockRedisRepository;
 import com.couponrush.event.domain.Event;
 import com.couponrush.event.dto.EventCreateRequest;
 import com.couponrush.event.dto.EventResponse;
@@ -25,6 +26,9 @@ class EventServiceTest {
 
     @Mock
     EventRepository eventRepository;
+
+    @Mock
+    CouponStockRedisRepository couponStockRedisRepository;
 
     @InjectMocks
     EventService eventService;
