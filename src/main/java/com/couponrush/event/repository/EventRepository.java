@@ -16,7 +16,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query(value = "SELECT e FROM Event e WHERE e.id = :id")
     Optional<Event> selectForUpdate(@Param("id") Long id);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query("UPDATE Event e SET e.remainingQuantity = e.remainingQuantity - 1 "
             + "WHERE e.id = :id AND e.remainingQuantity > 0")
     int decreaseRemainingQuantity(@Param("id") Long id);
