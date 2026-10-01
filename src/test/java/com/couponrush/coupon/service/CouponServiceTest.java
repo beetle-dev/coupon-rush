@@ -14,8 +14,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.Instant;
+import java.sql.SQLException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -41,6 +44,43 @@ class CouponServiceTest {
 
     @InjectMocks
     CouponService couponService;
+
+    @Test
+    void 사용자_중복_제약만_중복_발급으로_변환한다() {
+        DataIntegrityViolationException failure = integrityViolation("UQ_event_id_user_id");
+        given(couponRepository.save(any(Coupon.class))).willThrow(failure);
+
+        assertThatThrownBy(() -> couponService.issueCoupon(1L, 2L))
+                .isInstanceOf(CustomRuntimeException.class)
+                .hasMessage(ErrorCode.COUPON_DUPLICATE.getMessage());
+        assertThatThrownBy(() -> couponService.issueCouponAtomic(1L, 2L))
+                .isInstanceOf(CustomRuntimeException.class)
+                .hasMessage(ErrorCode.COUPON_DUPLICATE.getMessage());
+    }
+
+    @Test
+    void 코드_충돌은_원래_예외를_전달한다() {
+        DataIntegrityViolationException failure = integrityViolation("UQ_code");
+        given(couponRepository.save(any(Coupon.class))).willThrow(failure);
+
+        assertThatThrownBy(() -> couponService.issueCoupon(1L, 2L)).isSameAs(failure);
+        assertThatThrownBy(() -> couponService.issueCouponAtomic(1L, 2L)).isSameAs(failure);
+    }
+
+    @Test
+    void 제약_정보가_없는_무결성_오류는_원래_예외를_전달한다() {
+        DataIntegrityViolationException failure = new DataIntegrityViolationException("integrity failure");
+        given(couponRepository.save(any(Coupon.class))).willThrow(failure);
+
+        assertThatThrownBy(() -> couponService.issueCoupon(1L, 2L)).isSameAs(failure);
+        assertThatThrownBy(() -> couponService.issueCouponAtomic(1L, 2L)).isSameAs(failure);
+    }
+
+    private DataIntegrityViolationException integrityViolation(String constraintName) {
+        return new DataIntegrityViolationException("integrity failure",
+                new ConstraintViolationException(
+                        "constraint violation", new SQLException("duplicate key", "23000", 1062), constraintName));
+    }
 
     @Test
     void Coupon_발급시_EventService에_재고_차감을_위임하고_CouponIssueResponse를_반환한다() {

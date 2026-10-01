@@ -10,6 +10,7 @@ import com.couponrush.coupon.domain.Coupon;
 import com.couponrush.coupon.repository.CouponRepository;
 import com.couponrush.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +48,10 @@ public class CouponService {
             return new CouponIssueResponse(coupon.getId());
 
         } catch (DataIntegrityViolationException e) {
-            throw new CustomRuntimeException(ErrorCode.COUPON_DUPLICATE);
+            if (isDuplicateIssue(e)) {
+                throw new CustomRuntimeException(ErrorCode.COUPON_DUPLICATE);
+            }
+            throw e;
         }
     }
 
@@ -73,8 +77,19 @@ public class CouponService {
             return new CouponIssueResponse(couponId);
 
         } catch (DataIntegrityViolationException e) {
-            throw new CustomRuntimeException(ErrorCode.COUPON_DUPLICATE);
+            if (isDuplicateIssue(e)) {
+                throw new CustomRuntimeException(ErrorCode.COUPON_DUPLICATE);
+            }
+            throw e;
         }
+    }
+
+    private boolean isDuplicateIssue(DataIntegrityViolationException e) {
+        if (e.getCause() instanceof ConstraintViolationException cause) {
+            String name = cause.getConstraintName();
+            return "coupon.UQ_event_id_user_id".equals(name);
+        }
+        return false;
     }
 
     @Transactional
