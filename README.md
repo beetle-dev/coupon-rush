@@ -1,8 +1,8 @@
 # Coupon Rush
 
-한정 수량 쿠폰 발급에서 **5가지 동시성 제어 방식의 정합성과 처리 성능을 비교·분석한 개인 프로젝트**입니다.
+한정 수량의 쿠폰 발급 상황에서 **5가지 동시성 제어 방식의 정합성과 처리 성능을 비교·분석한 개인 프로젝트**입니다.
 
-📑 **프로젝트 소개 자료:** [PPT에서 상세 내용 보기](https://drive.google.com/file/d/1G92nUKtw93xzWWpdLruYTcAPcNTHGRop/view?usp=sharing)
+📑 **프로젝트 상세 자료:** [PPT에서 상세 내용 보기](https://drive.google.com/file/d/1G92nUKtw93xzWWpdLruYTcAPcNTHGRop/view?usp=sharing)
 
 ## 1. 프로젝트 배경
 
